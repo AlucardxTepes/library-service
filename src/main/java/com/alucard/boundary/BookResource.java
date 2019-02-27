@@ -1,4 +1,4 @@
-package com.alucard;
+package com.alucard.boundary;
 
 import com.alucard.domain.Book;
 import com.alucard.domain.Bookshelf;
@@ -6,6 +6,8 @@ import com.alucard.domain.Bookshelf;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
+import javax.ws.rs.container.ResourceContext;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -17,6 +19,9 @@ public class BookResource {
 
   @Inject
   Bookshelf bookshelf;
+
+  @Context
+  private ResourceContext context;
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
@@ -60,4 +65,17 @@ public class BookResource {
     return Response.noContent().build();
   }
 
+  @Path("/{isbn}/author")
+  public AuthorResource author(@PathParam("isbn") String isbn) {
+    Book book = bookshelf.findByISBN(isbn);
+    return new AuthorResource(book);
+  }
+
+  @Path("/{isbn}/loans")
+  public LoanResource loans(@PathParam("isbn") String isbn) {
+    LoanResource loanResource = context.getResource(LoanResource.class);
+    loanResource.setIsbn(isbn);
+
+    return loanResource;
+  }
 }
