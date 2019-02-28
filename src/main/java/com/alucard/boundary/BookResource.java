@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+import java.util.Objects;
 
 @Path("books")
 @RequestScoped
@@ -54,6 +55,10 @@ public class BookResource {
   @PUT
   @Path("/{isbn}")
   public Response update(@PathParam("isbn") String isbn, Book book) {
+    if (!Objects.equals(isbn, book.getIsbn())) {
+//      return Response.status(Response.Status.BAD_REQUEST).build();
+      throw new BadRequestException("ISBN must match path parameter.");
+    }
     bookshelf.update(isbn, book);
     return Response.ok().build();
   }
